@@ -1,4 +1,5 @@
 const { ApolloServer } = require('apollo-server')
+const { GraphQLScalarType } = require('graphql')
 
 const typeDefs = `
     enum PhotoCategory {
@@ -9,12 +10,14 @@ const typeDefs = `
         GRAPHIC
     }
 
+    scalar DateTime
     type Photo {
         id: ID!
         url: String!
         name: String!
         description: String
         category: PhotoCategory!
+        created: DateTime!
         postedBy: User!
         taggedUsers: [User!]!
     }
@@ -44,7 +47,7 @@ const typeDefs = `
     }
 `
 
-var _id = 0
+var _id = 4
 
 var users = [
     {
@@ -67,21 +70,24 @@ var photos = [
         "name": "Dropping the Heart Chute",
         "description": "The heart chute is one of my favorite chutes",
         "category": "ACTION",
-        "githubUser": "gPlake"
+        "githubUser": "gPlake",
+        "created": "3-28-1977"
     },
     {
         "id": "2",
         "name": "Enjoying the sunshine",
         "category": "SELFIE",
-        "githubUser": "sSchmidt"
+        "githubUser": "sSchmidt",
+        "created": "1-2-1985"
     },
     {
         "id": "3",
         "name": "Gunbarrel 25",
         "description": "25 laps on gunbarrel today",
         "category": "LANDSCAPE",
-        "githubUser": "sSchmidt"
-    }
+        "githubUser": "sSchmidt",
+        "created": "2018-04-15T19:09:57.308Z"
+   }
 ]
 
 var tags = [
@@ -102,7 +108,8 @@ const resolvers = {
         postPhoto(parent, args) {
             var newPhoto = {
                 id: _id++,
-                ...args.input
+                ...args.input,
+                created: new Date()
             }
             photos.push(newPhoto)
 
@@ -129,7 +136,15 @@ const resolvers = {
             .filter(tag => tag.userID === parent.githubLogin)
             .map(tag => tag.photoID)
             .map(photoID => photos.find(p => p.id === photoID))
-    }
+    },
+
+    DateTime: new GraphQLScalarType({
+        name: `DateTime`,
+        scription: `A valid date time value`,
+        parseValue: value => new Date(value),
+        serialize: value => new Date(value).toISOString(),
+        parseLiteral: ast => ast.value
+    })
 }
 
 const server = new ApolloServer({
