@@ -1,22 +1,4 @@
-enum PhotoCategory {
-    SELFIE
-    PORTRAIT
-    ACTION
-    LANDSCAPE
-    GRAPHIC
-}
-
 scalar DateTime
-type Photo {
-    id: ID!
-    url: String!
-    name: String!
-    description: String
-    category: PhotoCategory!
-    created: DateTime!
-    postedBy: User!
-    taggedUsers: [User!]!
-}
 
 type User {
     githubLogin: ID!
@@ -24,6 +6,25 @@ type User {
     avatar: String
     postedPhotos: [Photo!]!
     inPhotos: [Photo!]!
+}
+
+type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    category: PhotoCategory!
+    postedBy: User!
+    taggedUsers: [User!]!
+    created: DateTime!
+}
+
+enum PhotoCategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAPHIC
 }
 
 input PostPhotoInput {
@@ -35,6 +36,7 @@ input PostPhotoInput {
 type Query {
     totalPhotos: Int!
     allPhotos: [Photo!]!
+    totalUsers: Int!
     allUsers: [User!]!
 }
 
