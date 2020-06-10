@@ -13,9 +13,22 @@ async function start() {
     var app = express()
     
     const MONGO_DB = process.env.DB_HOST
+    let db
 
-    const client = await MongoClient.connect(MONGO_DB, { useNewUrlParse: true})
-    const db = client.db()
+    try {
+        const client = await MongoClient.connect(MONGO_DB, { useNewUrlParse: true})
+        db = client.db()
+    } catch (error) {
+        console.log(`
+    
+        Mongo DB Host not found!
+        please add DB_HOST environment variable to .env file
+  
+        exiting...
+         
+      `)
+      process.exit(1)
+   }
 
     const context = { db }
 
