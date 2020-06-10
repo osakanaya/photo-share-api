@@ -30,12 +30,14 @@ async function start() {
       process.exit(1)
    }
 
-    const context = { db }
-
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        context
+        context: async ({ req }) => {
+            const githubToken = req.headers.authorization
+            const currentUser = await db.collection('users').findOne({ githubToken })
+            return { db, currentUser }
+        }
     })
 
     server.applyMiddleware({ app })
