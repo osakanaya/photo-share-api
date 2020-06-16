@@ -1,9 +1,10 @@
 const { authorizeWithGithub } = require('../lib')
-const { ObjectID } = require('mongodb')
 const fetch = require('node-fetch')
+const { ObjectID } = require('mongodb')
+const { PubSub } = require('apollo-server-express')
 
 module.exports = {
-    async postPhoto(parent, args, { db, currentUser }) {
+    async postPhoto(parent, args, { db, currentUser, pubsub }) {
         if (!currentUser) {
             throw new Error('only an authorized user can post a photo')
         }
@@ -16,6 +17,8 @@ module.exports = {
 
         const { insertedIds } = await db.collection('photos').insert(newPhoto)
         newPhoto.id = insertedIds[0]
+
+        pubsub.publish('photo-added', { newPhoto })
 
         return newPhoto
     },
