@@ -53,10 +53,10 @@ module.exports = {
             avatar: avatar_url
         }
 
-        const { ops: [user] } = await db
+        const { ops: [user], result } = await db
             .collection('users').replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true })
         
-        resutl.upserted && pubsub.publish('user-added', { newUser: user })
+        result.upserted && pubsub.publish('user-added', { newUser: user })
 
         return { user, token: access_token }
     },
